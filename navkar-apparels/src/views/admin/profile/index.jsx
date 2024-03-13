@@ -34,20 +34,53 @@ import Storage from "views/admin/profile/components/Storage";
 import Upload from "views/admin/profile/components/Upload";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { useHistory, useLocation } from "react-router-dom";
-import  customerDetails  from 'views/admin/profile/variables/CustomerDetail.json';
+// import  customerDetails  from 'views/admin/profile/variables/CustomerDetail.json';
 import  BillDetails from 'views/admin/profile/variables/BillDetails.json';
 
 // Assets
 import avatar from "assets/img/avatars/customer.jpg"
 import banner from "assets/img/auth/banner.png";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { columnsDataTransactions } from "./variables/ColumnData";
 import ColumnsTable from "views/admin/profile/components/ColumnsTable";
+import axios, * as others from 'axios';
 
 export default function Overview() {
   // console.log(customerDetails);
   // console.log(customerDetails);
   // console.log("HERERERERE");
+
+
+  const [customerData, setCustomerData] = useState([])
+  const [customer, setCustomer] = useState({})
+
+  useEffect(() => {
+    getCustomers().then(()=>{
+      console.log('loaded..');
+      // const currentCustomer = customerData.find(customer => customer.id === Number(id))
+      // setCustomer(currentCustomer)
+      // console.log(customer);
+    })
+  },[])
+
+
+  async function getCustomers() {
+    // const axios = require('axios');
+    // setIsSubmitting(true);
+
+    try {
+        const response = await axios.get(`http://localhost:5000/api/getRequiredDataCustomersById/${id}`);
+        // console.log(response.data);
+        const d = response.data
+        // console.log(d);
+        setCustomer(d)        
+        // setIsSubmitting(false);
+    } catch (error) {
+        console.error('Error adding customer:', error);
+        // setError('Oops! Something went wrong. Please try again later.');
+        // setIsSubmitting(false);
+    }
+}
   
 
   const textColor = useColorModeValue("secondaryGray.900", "white");
@@ -65,26 +98,23 @@ export default function Overview() {
   // console.log(id);
   // console.log(customerDetails);
   
-  const currentCustomer = customerDetails.find(customer => customer.id === Number(id))
-  // console.log(currentCustomer);
+  
   // console.log(someProp, id);
   const history = useHistory();
 
   const handleAddTransaction = () => {
     // console.log(id);
     history.push({
-      pathname: `/admin/data-tables/profile/${currentCustomer.id}/addTransaction`,
-      state: { id: currentCustomer.id }
+      pathname: `/admin/data-tables/profile/${customer.id}/addTransaction`,
+      state: { id: customer.id }
     });
   };
 
   const handleViewTransaction = (tid) => {
-    // console.log("HETTTT");
-    // console.log(tid);
-    // console.log(currentCustomer);
+
     history.push({
-      pathname: `/admin/data-tables/profile/${currentCustomer.id}/Transaction/${tid}`,
-      state: { id: currentCustomer, tid :tid }
+      pathname: `/admin/data-tables/profile/${customer.id}/Transaction/${tid}`,
+      state: { id: customer, tid :tid }
     });
   }
 
@@ -121,8 +151,8 @@ export default function Overview() {
         <Banner
           banner={banner}
           avatar={avatar}
-          name={currentCustomer.name}
-          job={currentCustomer.type}
+          name={customer.name}
+          job={customer.type}
         />
         {/* {console.log(currentCustomer)} */}
         
@@ -130,11 +160,12 @@ export default function Overview() {
           gridArea={{ base: "2 / 1 / 3 / 2", lg: "1 / 2 / 2 / 3" }}
           // minH="250px"
           pe="20px"
-          contact={currentCustomer.mobile}
-          address={currentCustomer.address}
-          email={currentCustomer.email}
-          gst={currentCustomer.GSTIN}
+          contact={customer.mobile}
+          address={customer.address}
+          email={customer.email}
+          gst={customer.GSTIN}
         />
+        
         {/* <Storage
     used={25.6}
     total={50}
@@ -185,7 +216,7 @@ export default function Overview() {
           }}
         />
       </Grid> */}
-{/* {console.log(BillDetails)} */}
+{}
 <Box>
   <Flex px="25px" py={'16px'} borderRadius={'16px'} justify="space-between" mb="20px" align="center" bg={'white'}>
         <Text
@@ -202,9 +233,10 @@ export default function Overview() {
       </Flex>
     <ColumnsTable
           columnsData={columnsDataTransactions}
-          tableData={BillDetails}
+          tableData={customer.transactions??[]}
           handleClick={handleViewTransaction}
         />
+        {console.log()}
   </Box>
 
     </Box>

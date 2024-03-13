@@ -45,7 +45,7 @@ export default function GeneralInformation(props) {
         <Information
           boxShadow={cardShadow}
           title='Email'
-          value={email}
+          value={email??'-'}
         />
         <Information
           boxShadow={cardShadow}

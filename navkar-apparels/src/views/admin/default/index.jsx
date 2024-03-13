@@ -21,6 +21,7 @@
 */
 
 // Chakra imports
+
 import {
   Avatar,
   Box,
@@ -37,7 +38,8 @@ import Usa from "assets/img/dashboards/usa.png";
 import MiniCalendar from "components/calendar/MiniCalendar";
 import MiniStatistics from "components/card/MiniStatistics";
 import IconBox from "components/icons/IconBox";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios, * as others from 'axios';
 import {
   MdAddTask,
   MdAttachMoney,
@@ -46,7 +48,7 @@ import {
 } from "react-icons/md";
 import CheckTable from "views/admin/default/components/CheckTable";
 import ComplexTable from "views/admin/default/components/ComplexTable";
-
+import Error from "./components/Error";
 import {columnsDataComplex} from "views/admin/default/variables/columnsData";
 import tableDataComplex from "views/admin/dataTables/variables/tableDataComplex.json";
 export default function UserReports() {
@@ -55,9 +57,51 @@ export default function UserReports() {
   const redBg = useColorModeValue("red.100", "white");
   const greenColor = useColorModeValue("green.500", "white");
   const greenBg = useColorModeValue("green.100", "white");
+
+
+  const [error, setError] = useState(null);
+
+  const [customerData, setCustomerData] = useState([])
+
+  useEffect(() => {
+    getCustomers().then(()=>{console.log('');})
+  },[])
+
+  
+
+  async function getCustomers() {
+    // const axios = require('axios');
+    // setIsSubmitting(true);
+
+    try {
+        const response = await axios.get('http://localhost:5000/api/getRequiredDataCustomers');
+        // console.log(response.data);
+        const d = response.data
+        console.log(d);
+        setCustomerData(d)
+        setError(null)
+        
+        // setIsSubmitting(false);
+    } catch (error) {
+        setError('Oops! Something went wrong. Please try again later.');
+        // setIsSubmitting(false);
+    }
+}
+
+const handleRetry = () => {
+  // Retry logic, you can make an API call or perform any necessary action here
+  getCustomers();
+};
+
+
+
   return (
     <>
-    <Box>
+    {error ? (
+        <Error errorMessage={error} onRetry={handleRetry} />
+      ):(
+        <>
+        <Box>
       <SimpleGrid
         columns={{ base: 1, md: 2, lg: 2, "2xl": 6 }}
         gap='20px'
@@ -99,9 +143,12 @@ export default function UserReports() {
     <Box >
     <ComplexTable
         columnsData={columnsDataComplex}
-        tableData={tableDataComplex}
+        tableData={customerData}
       />
     </Box>
+        </>
+      )}
+    
   </>
   );
 }

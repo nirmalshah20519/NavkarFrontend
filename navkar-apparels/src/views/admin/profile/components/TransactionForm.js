@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   FormControl,
@@ -8,22 +8,69 @@ import {
   Button,
   Text,
   Select,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { useHistory, useLocation } from "react-router-dom";
 import { ArrowBackIcon } from "@chakra-ui/icons";
+import axios, * as others from 'axios';
 
 const TransactionForm = () => {
-  const products = [
-    { id: 1, name: "ParleG" },
-    { id: 2, name: "MariGold" },
-    // Add more products as needed
-  ];
+
+  useEffect(() => {
+    getProducts().then(()=>{})
+  }, [])
+
+  const [products, setProducts] = useState([])
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [alert, setAlert] = useState({ message: "", type: "" });
+
+  async function getProducts() {
+    try {
+        const response = await axios.get('http://localhost:5000/api/getAllProductType');
+        // console.log(response.data);
+        const d = response.data
+        console.log(d);
+        // setCustomerData(d)
+        setProducts(d)
+        // console.log(currentCustomer,id);
+
+        
+        // setIsSubmitting(false);
+    } catch (error) {
+        console.error('Error adding customer:', error);
+        // setError('Oops! Something went wrong. Please try again later.');
+        // setIsSubmitting(false);
+    }
+}
+
+
+async function addOrder(order) {
+  try {
+      const response = await axios.post('http://localhost:5000/api/addOrder',order);
+      console.log('Order added successfully:', response.data);
+      setAlert({ message: "Form submitted successfully! Redirecting to home ...", type: "success" }); // Setting success message
+      const  timer = setTimeout(() => {setAlert({});handleGoBack();}, 2000); // Clearing alert after
+      setIsSubmitting(false);
+
+      
+      // setIsSubmitting(false);
+  } catch (error) {
+    console.error('Error adding Order:', error);
+    setAlert({ message: error.message, type: "error" }); // Setting success message
+    const  timer = setTimeout(() => {setAlert({});}, 2000); // Clearing alert after
+    setIsSubmitting(false);
+  }
+}
 
   const history = useHistory();
   const location = useLocation();
   const { id } = location.state;
 
   const [formData, setFormData] = useState({
+    customerId:-1,
     billNo: "",
     remark: "", // Add the remark field
     orderDate: "",
@@ -111,6 +158,8 @@ const TransactionForm = () => {
 
     if (formValid) {
       // Handle form submission here
+      formData.customerId = id
+      const order = formData
       console.log(formData);
       setFormData({
         billNo: "",
@@ -124,7 +173,8 @@ const TransactionForm = () => {
         orderDate: "",
         details: [{ productName: "", qty: "", rate: "" }],
       });
-      handleGoBack();
+      // handleGoBack();
+      addOrder(order)
     }
   };
 
@@ -271,7 +321,7 @@ const TransactionForm = () => {
                 >
                   <option value="">Select Product</option>
                   {products.map((product) => (
-                    <option key={product.id} value={product.name}>
+                    <option key={product.id} value={product.id}>
                       {product.name}
                     </option>
                   ))}
@@ -371,11 +421,18 @@ const TransactionForm = () => {
             colorScheme="blue"
             alignSelf="flex-end"
             borderRadius={3}
+            isLoading={isSubmitting}
           >
             Submit
           </Button>
         </Stack>
       </form>
+      {alert.message && (
+        <Alert status={alert.type} mt="4">
+          <AlertIcon />
+          {alert.message}
+        </Alert>
+      )}
     </Box>
   );
 };

@@ -45,17 +45,54 @@ import tableDataDevelopment from "views/admin/dataTables/variables/tableDataDeve
 import tableDataCheck from "views/admin/dataTables/variables/tableDataCheck.json";
 import tableDataColumns from "views/admin/dataTables/variables/tableDataColumns.json";
 import tableDataComplex from "views/admin/dataTables/variables/tableDataComplex.json";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
   Link,
   useHistory,
 } from "react-router-dom";
+import axios, * as others from 'axios';
+
+import Error from "../default/components/Error";
+
 
 export default function Settings() {
   // console.log(tableDataColumns);
   const history = useHistory();
+  const [customerData, setCustomerData] = useState([])
+
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    getCustomers().then(()=>{console.log('');})
+  },[])
+
+  const handleRetry = () => {
+    // Retry logic, you can make an API call or perform any necessary action here
+    getCustomers();
+  };
+
+  async function getCustomers() {
+    // const axios = require('axios');
+    // setIsSubmitting(true);
+
+    try {
+        const response = await axios.get('http://localhost:5000/api/getRequiredDataCustomers');
+        // console.log(response.data);
+        const d = response.data
+        console.log(d);
+        setCustomerData(d)
+        
+        // setIsSubmitting(false);
+    } catch (error) {
+        console.error('Error adding customer:', error);
+        setError('Oops! Something went wrong. Please try again later.');
+        // setIsSubmitting(false);
+    }
+}
+
+
 
   const handleAddCustomer = () => {
     history.push({
@@ -77,7 +114,12 @@ export default function Settings() {
   };
   // Chakra Color Mode
   return (
-    <Box>
+    <>
+    {
+      error ? (
+        <Error errorMessage={error} onRetry={handleRetry} />
+      ):(
+        <Box>
       {/* <SimpleGrid
         mb='20px'
         columns={{ sm: 1, md: 2 }}
@@ -108,9 +150,15 @@ export default function Settings() {
       </Flex>
       <ColumnsTable
         columnsData={columnsDataColumns}
-        tableData={tableDataColumns}
+        tableData={customerData}
         handleClick={handleViewButtonClick}
       />
     </Box>
+      )
+    }
+
+
+    </>
+    
   );
 }

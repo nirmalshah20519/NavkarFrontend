@@ -168,7 +168,7 @@ export default function ColumnsTable(props) {
                   ) {
                     data = (
                       <Text color={textColor} fontSize="md" fontWeight="700">
-                        {cell.value}
+                        {cell.value?cell.value: "-"}
                       </Text>
                     );
                   } else if (cell.column.Header === "ACTION") {

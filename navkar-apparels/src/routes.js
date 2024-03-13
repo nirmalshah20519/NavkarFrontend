@@ -21,6 +21,7 @@ import SignInCentered from "views/auth/signIn";
 import CustomerForm from "views/admin/dataTables/components/CustomerForm";
 import TransactionForm from "views/admin/profile/components/TransactionForm";
 import TransactionDetail from "views/admin/profile/components/TransactionDetail";
+import Error from "views/admin/default/components/Error";
 
 const routes = [
   {
@@ -31,6 +32,7 @@ const routes = [
     component: MainDashboard,
     display:true
   },
+  // 
   // {
   //   name: "Customers",
   //   layout: "/admin",
