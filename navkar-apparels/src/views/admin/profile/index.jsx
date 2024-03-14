@@ -22,7 +22,14 @@
 
 // Chakra imports
 
-import { Box, Button, Flex, Text, useColorModeValue } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, useColorModeValue, Alert,
+  AlertIcon,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter, } from "@chakra-ui/react";
 import { useParams } from 'react-router-dom';
 
 // Custom components
@@ -51,8 +58,15 @@ export default function Overview() {
   // console.log("HERERERERE");
 
 
+  
+
   const [customerData, setCustomerData] = useState([])
   const [customer, setCustomer] = useState({})
+
+  const [alert, setAlert] = useState({ message: "", type: "" });
+
+  const [error, setError] = useState(null);
+
 
   useEffect(() => {
     getCustomers().then(()=>{
@@ -125,6 +139,54 @@ export default function Overview() {
       // state: { id: currentCustomer.id }
     });
   };
+
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [ordId, setOrdId] = useState(-1);
+  const onClose = () => setIsOpen(false);
+  const cancelRef = React.useRef();
+
+  async function deleteOrder(id) {
+    // const axios = require('axios');
+    // setIsSubmitting(true);
+
+    try {
+        const response = await axios.delete(`http://localhost:5000/api/deleteOrder/${id}`);
+        // console.log(response.data);
+        setAlert({ message: "order deleted successfully!", type: "success" }); // Setting success message
+        const  timer = setTimeout(() => {setAlert({});}, 2500); // Clearing alert after
+
+        
+        // setIsSubmitting(false);
+    } catch (error) {
+        setError('Oops! Something went wrong. Please try again later.');
+        // setIsSubmitting(false);
+        setAlert({ message: error.message, type: "error" }); // Setting success message
+        const  timer = setTimeout(() => {setAlert({});}, 3000); // Clearing alert after
+    }
+}
+
+
+  const handleDelClick = (id) =>{
+    setOrdId(id);
+    // console.log(ordId);
+
+    setIsOpen(true);
+  }
+
+  const handleDeleteConfirmed = () => {
+    console.log(ordId);
+    // Perform deletion logic here
+    deleteOrder(ordId).then(()=>{
+      console.log("Order deleted!");
+      getCustomers().then(()=>{console.log('');})
+    })
+    setOrdId(-1)
+    onClose(); // Close the confirmation dialog
+  };
+
+
+
   return (
     <Box>
       {/* Main Fields */}
@@ -235,9 +297,42 @@ export default function Overview() {
           columnsData={columnsDataTransactions}
           tableData={customer.transactions??[]}
           handleClick={handleViewTransaction}
+          handleDelClick={handleDelClick}
         />
-        {console.log()}
+        {/* {console.log()}
+         */}
+         {alert.message && (
+        <Alert status={alert.type} mt="4">
+          <AlertIcon />
+          {alert.message}
+        </Alert>
+      )}
   </Box>
+
+  <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Confirm Deletion
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Are you sure you want to delete this order #{ordId}?
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={handleDeleteConfirmed} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
 
     </Box>
   );

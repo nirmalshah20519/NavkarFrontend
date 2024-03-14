@@ -32,7 +32,7 @@ const TransactionForm = () => {
         const response = await axios.get('http://localhost:5000/api/getAllProductType');
         // console.log(response.data);
         const d = response.data
-        console.log(d);
+        // console.log(d);
         // setCustomerData(d)
         setProducts(d)
         // console.log(currentCustomer,id);
@@ -59,8 +59,8 @@ async function addOrder(order) {
       // setIsSubmitting(false);
   } catch (error) {
     console.error('Error adding Order:', error);
-    setAlert({ message: error.message, type: "error" }); // Setting success message
-    const  timer = setTimeout(() => {setAlert({});}, 2000); // Clearing alert after
+    setAlert({ message: error.message +' '+ error.response.data, type: "error" }); // Setting success message
+    const  timer = setTimeout(() => {setAlert({});}, 3000); // Clearing alert after
     setIsSubmitting(false);
   }
 }

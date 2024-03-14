@@ -35,11 +35,12 @@ import {
   ChevronLeftIcon,
   SearchIcon,
 } from "@chakra-ui/icons";
+import {MdOutlineRemoveRedEye, MdDeleteOutline } from 'react-icons/md'
 import Card from "components/card/Card";
 // import { DefaultColumnFilter } from "./DefaultColumnFilter";
 
 export default function ColumnsTable(props) {
-  const { columnsData, tableData, handleClick } = props;
+  const { columnsData, tableData, handleClick, handleDelClick } = props;
 
   const [filterInput, setFilterInput] = useState("");
 
@@ -175,14 +176,26 @@ export default function ColumnsTable(props) {
                   else if (cell.column.Header === "ACTION") {
                     data = (
                       <Flex align="center">
-                        <Button
+                        <IconButton
                           colorScheme={"blue"}
                           size="md"
                           fontWeight="700"
+                          icon={<MdOutlineRemoveRedEye  />}
                           onClick={() => handleClick(cell.row.original.id)}
+                          me={4}
                         >
-                          View {" >>"}
-                        </Button>
+                         {/* <MdOutlineRemoveRedEye /> */}
+                        </IconButton>
+
+                        <IconButton
+                          colorScheme={"red"}
+                          size="md"
+                          fontWeight="700"
+                          icon={<MdDeleteOutline  />}
+                          onClick={() => handleDelClick(cell.row.original.id)}
+                        >
+                         {/* <MdOutlineRemoveRedEye /> */}
+                        </IconButton>
                       </Flex>
                     );
                   }

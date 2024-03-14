@@ -37,6 +37,7 @@ import {
 } from "@chakra-ui/icons";
 import { useHistory } from 'react-router-dom';
 import Card from "components/card/Card";
+import {MdOutlineRemoveRedEye, MdDeleteOutline } from 'react-icons/md'
 // import { DefaultColumnFilter } from "./DefaultColumnFilter";
 
 export default function ColumnsTable(props) {
@@ -47,7 +48,7 @@ export default function ColumnsTable(props) {
       pathname: `/admin/data-tables/addCustomer`,
     })
   }
-  const { columnsData, tableData, handleClick } = props;
+  const { columnsData, tableData, handleClick, handleDelClick } = props;
 
   const [filterInput, setFilterInput] = useState("");
 
@@ -174,14 +175,30 @@ export default function ColumnsTable(props) {
                   } else if (cell.column.Header === "ACTION") {
                     data = (
                       <Flex align="center">
-                        <Button
+                        <IconButton
                           colorScheme={"blue"}
-                          size="md"
+                          // size="md"
+                          me={4}
+                          padding={0}
                           fontWeight="700"
                           onClick={() => handleClick(cell.row.original)}
+                          icon={<MdOutlineRemoveRedEye />}
                         >
-                          View {" >>"}
-                        </Button>
+                          {/* View {" >>"} */}
+                          
+                        </IconButton>
+
+                        <IconButton
+                          colorScheme={"red"}
+                          // size="md"
+                          padding={0}
+                          fontWeight="700"
+                          onClick={() => handleDelClick(cell.row.original)}
+                          icon={<MdDeleteOutline  />}
+                        >
+                          {/* View {" >>"} */}
+                          
+                        </IconButton>
                       </Flex>
                     );
                   }

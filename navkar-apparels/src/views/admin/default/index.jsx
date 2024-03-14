@@ -77,7 +77,7 @@ export default function UserReports() {
         const response = await axios.get('http://localhost:5000/api/getRequiredDataCustomers');
         // console.log(response.data);
         const d = response.data
-        console.log(d);
+        // console.log(d);
         setCustomerData(d)
         setError(null)
         
