@@ -35,7 +35,7 @@ import {
   SearchIcon,
 } from "@chakra-ui/icons";
 import Card from "components/card/Card";
-import { MdCheckCircle, MdCancel, MdOutlineError } from "react-icons/md";
+import {MdOutlineRemoveRedEye, MdDeleteOutline, MdOutlineEdit } from 'react-icons/md'
 
 export default function ColumnsTable(props) {
   const { columnsData, tableData } = props;
@@ -91,7 +91,7 @@ export default function ColumnsTable(props) {
           fontWeight="700"
           lineHeight="100%"
         >
-          Customers
+          Products
         </Text>
         <Flex alignItems="center">
           <Box mr="10px">
@@ -120,16 +120,18 @@ export default function ColumnsTable(props) {
           No results found
         </Text>
       ) : (
-        <Table {...getTableProps()} variant="simple" color="gray.500" mb="24px">
+        <Table {...getTableProps()} variant="simple" color="gray.500" mb="24px" w={'full'} px={'1.5rem'} >
           <Thead>
             {headerGroups.map((headerGroup, index) => (
               <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
                 {headerGroup.headers.map((column, index) => (
                   <Th
                     {...column.getHeaderProps(column.getSortByToggleProps())}
-                    pe="10px"
+                    // pe="10px"
+                    mx={'16px'}
                     key={index}
                     borderColor={borderColor}
+                    w={'fit-content'}
                   >
                     <Flex
                       justify="space-between"
@@ -137,7 +139,8 @@ export default function ColumnsTable(props) {
                       fontSize={{ sm: "10px", lg: "1rem" }}
                       color="gray.400"
                     >
-                      {column.render("Header")}
+                      {console.log(column.render("Header"))}
+                      {column.render("Header")==='ACTION'?(<Text textAlign={'right'} w={'full'}>{column.render("Header")}</Text>):column.render("Header")}
                     </Flex>
                   </Th>
                 ))}
@@ -152,28 +155,43 @@ export default function ColumnsTable(props) {
                   {row.cells.map((cell, index) => {
                     let data = "";
                     if (
-                      ["ID", "NAME", "EMAIL", "MOBILE"].includes(
+                      ["PRODUCT NAME"].includes(
                         cell.column.Header
                       )
                     ) {
                       data = (
+                        
                         <Text color={textColor} fontSize="md" fontWeight="700">
                           {cell.value?cell.value: "-"}
                         </Text>
                       );
-                    } else if (cell.column.Header === "STATUS") {
-                      const color =
-                        cell.value >= 0
-                          ? "green.500"
-                          : cell.value < 0
-                          ? "red.500"
-                          : null;
+                    } else if (cell.column.Header === "ACTION") {
                       data = (
-                        <Flex align="center">
-                          <Text color={color} fontSize="md" fontWeight="700">
-                            {cell.value < 0 ? "-" : " "} ₹{" "}
-                            {Math.abs(cell.value)}
-                          </Text>
+                        <Flex align="right" justifyContent={'end'}>
+                          <IconButton
+                            colorScheme={"blue"}
+                            // size="md"
+                            me={4}
+                            padding={0}
+                            fontWeight="700"
+                            // onClick={() => handleClick(cell.row.original)}
+                            icon={<MdOutlineEdit />}
+                          >
+                            {/* View {" >>"} */}
+                            
+                          </IconButton>
+  
+                          <IconButton
+                            colorScheme={"red"}
+                            // size="md"
+                            padding={0}
+                            fontWeight="700"
+                            // onClick={() => handleDelClick(cell.row.original)}
+                            icon={<MdDeleteOutline  />}
+                          >
+                            {/* View {" >>"} */}
+                            
+                          </IconButton>
                         </Flex>
                       );
                     }
@@ -185,10 +203,13 @@ export default function ColumnsTable(props) {
                         maxH="30px !important"
                         py="8px"
                         minW={{ sm: "150px", md: "200px", lg: "auto" }}
-                        borderColor="transparent"
+                        // borderColor="transparent"
+                       
                       >
                         {data}
                       </Td>
+          
+
                     );
                   })}
                 </Tr>

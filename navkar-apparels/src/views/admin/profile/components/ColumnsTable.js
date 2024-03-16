@@ -169,7 +169,7 @@ export default function ColumnsTable(props) {
                   else if(cell.column.Header === "AMOUNT"){
                     data = (
                       <Text color={textColor} fontSize="md" fontWeight="700">
-                      { cell.value}
+                      ₹ { cell.value}
                       </Text>
                     );
                   }

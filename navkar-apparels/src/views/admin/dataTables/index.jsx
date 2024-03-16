@@ -71,7 +71,7 @@ export default function Settings() {
 
   const [alert, setAlert] = useState({ message: "", type: "" });
 
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     getCustomers().then(()=>{console.log('');})
@@ -92,6 +92,7 @@ export default function Settings() {
         const d = response.data
         console.log(d);
         setCustomerData(d)
+        setError(null)
         
         // setIsSubmitting(false);
     } catch (error) {
@@ -147,6 +148,7 @@ export default function Settings() {
         // console.log(response.data);
         setAlert({ message: "Customer deleted successfully!", type: "success" }); // Setting success message
         const  timer = setTimeout(() => {setAlert({});}, 2500); // Clearing alert after
+        
 
         
         // setIsSubmitting(false);

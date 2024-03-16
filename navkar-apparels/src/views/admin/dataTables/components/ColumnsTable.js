@@ -37,7 +37,7 @@ import {
 } from "@chakra-ui/icons";
 import { useHistory } from 'react-router-dom';
 import Card from "components/card/Card";
-import {MdOutlineRemoveRedEye, MdDeleteOutline } from 'react-icons/md'
+import {MdOutlineRemoveRedEye, MdDeleteOutline, MdOutlineEdit } from 'react-icons/md'
 // import { DefaultColumnFilter } from "./DefaultColumnFilter";
 
 export default function ColumnsTable(props) {

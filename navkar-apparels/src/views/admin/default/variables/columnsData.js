@@ -17,24 +17,28 @@ export const columnsDataCheck = [
   },
 ];
 export const columnsDataComplex = [
+  // {
+  //   Header: "ID",
+  //   accessor: "id",
+  // },
   {
-    Header: "ID",
-    accessor: "id",
-  },
-  {
-    Header: "NAME",
+    Header: "PRODUCT NAME",
     accessor: "name",
   },
   {
-    Header: "EMAIL",
-    accessor: "email",
-  },
-  {
-    Header: "MOBILE",
-    accessor: "mobile",
-  },
-  {
-    Header: "STATUS",
-    accessor: "status",
+    Header: "ACTION",
+    accessor: "action",
   }
+  // {
+  //   Header: "EMAIL",
+  //   accessor: "email",
+  // },
+  // {
+  //   Header: "MOBILE",
+  //   accessor: "mobile",
+  // },
+  // {
+  //   Header: "STATUS",
+  //   accessor: "status",
+  // }
 ];
