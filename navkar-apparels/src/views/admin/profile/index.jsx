@@ -135,7 +135,7 @@ export default function Overview() {
 
   const handleGoBack = () => {
     history.push({
-      pathname: `/admin/data-tables/`,
+      pathname: `/admin/customers/`,
       // state: { id: currentCustomer.id }
     });
   };

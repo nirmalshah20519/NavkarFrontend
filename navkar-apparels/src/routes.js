@@ -25,11 +25,11 @@ import Error from "views/admin/default/components/Error";
 
 const routes = [
   {
-    name: "Dashboard",
+    name: "Customers",
     layout: "/admin",
-    path: "/default",
+    path: "/customers",
     icon: <Icon as={MdHome} width='20px' height='20px' color='#2F2F2F' />,
-    component: MainDashboard,
+    component: DataTables,
     display:true
   },
   // 
@@ -49,11 +49,11 @@ const routes = [
   //   secondary: true,
   // },
   {
-    name: "Customers",
+    name: "Products",
     layout: "/admin",
     icon: <Icon as={MdBarChart} width='20px' height='20px' color='#2F2F2F' />,
-    path: "/data-tables",
-    component: DataTables,
+    path: "/default",
+    component: MainDashboard,
     display:true,
   exact:true,
     // children: [

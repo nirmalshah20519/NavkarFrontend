@@ -35,19 +35,52 @@ import {
   ChevronLeftIcon,
   SearchIcon,
 } from "@chakra-ui/icons";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 import Card from "components/card/Card";
-import {MdOutlineRemoveRedEye, MdDeleteOutline, MdOutlineEdit } from 'react-icons/md'
+import {
+  MdOutlineRemoveRedEye,
+  MdDeleteOutline,
+  MdOutlineEdit,
+} from "react-icons/md";
 // import { DefaultColumnFilter } from "./DefaultColumnFilter";
+
+const HighlightedText = ({ text = "", highlight = "" }) => {
+  // Ensure text is a string
+  const textAsString = String(text);
+
+  if (!highlight.trim()) {
+    return <span style={{fontWeight:'bold', fontSize:'1.1rem',color:'#3F3F3F'}}>{textAsString}</span>;
+  }
+  const regex = new RegExp(`(${highlight})`, "gi");
+  const parts = textAsString.split(regex);
+  return (
+    <span style={{fontWeight:'bold', fontSize:'1.1rem',color:'#3F3F3F'}}>
+      {parts.filter(String).map((part, index) =>
+        regex.test(part) ? (
+          <mark
+            key={index}
+            style={{
+              backgroundColor: "#FFE633",
+            }}
+          >
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      )}
+    </span>
+  );
+};
 
 export default function ColumnsTable(props) {
   const history = useHistory();
 
-  const handleAddCustomer = ()=>{
+  const handleAddCustomer = () => {
     history.push({
       pathname: `/admin/data-tables/addCustomer`,
-    })
-  }
+    });
+  };
   const { columnsData, tableData, handleClick, handleDelClick } = props;
 
   const [filterInput, setFilterInput] = useState("");
@@ -104,10 +137,17 @@ export default function ColumnsTable(props) {
       <Button colorScheme="blue" onClick={handleAddCustomer}>Add Customers</Button>
     </Flex> */}
       {/* Search input */}
-      <Flex px="25px" mb="20px" justify="flex-start" align="center"  border={`solid ${textColor} 2p`}>
+      <Flex
+        px="25px"
+        mb="20px"
+        justify="flex-start"
+        align="center"
+        border={`solid ${textColor} 2p`}
+      >
         <Box mr="10px">
           <Icon as={SearchIcon} color="gray.400" />
         </Box>
+        
         <Input
           value={filterInput}
           onChange={(e) => {
@@ -115,13 +155,14 @@ export default function ColumnsTable(props) {
             setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
           }}
           placeholder="Search..."
-          style={{ width: "200px", padding: "5px" }}
+          style={{padding: "5px" }}
         />
       </Flex>
 
       {/* Table */}
 
-      {page.length===0?(<Text
+      {page.length === 0 ? (
+        <Text
           color={textColor}
           fontSize="lg"
           fontWeight="normal"
@@ -129,103 +170,98 @@ export default function ColumnsTable(props) {
           my={4}
         >
           No results found
-        </Text>)
-      :(
+        </Text>
+      ) : (
         <Table {...getTableProps()} variant="simple" color="gray.500" mb="24px">
-        <Thead>
-          {headerGroups.map((headerGroup, index) => (
-            <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
-              {headerGroup.headers.map((column, index) => (
-                <Th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  pe="10px"
-                  key={index}
-                  borderColor={borderColor}
-                >
-                  <Flex
-                    justify="space-between"
-                    align="center"
-                    fontSize={{ sm: "10px", lg: "12px" }}
-                    color="gray.400"
+          <Thead>
+            {headerGroups.map((headerGroup, index) => (
+              <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
+                {headerGroup.headers.map((column, index) => (
+                  <Th
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    pe="10px"
+                    key={index}
+                    borderColor={borderColor}
                   >
-                    {column.render("Header")}
-                  </Flex>
-                </Th>
-              ))}
-            </Tr>
-          ))}
-        </Thead>
-        <Tbody {...getTableBodyProps()}>
-          {page.map((row, index) => {
-            prepareRow(row);
-            return (
-              <Tr {...row.getRowProps()} key={index}>
-                {row.cells.map((cell, index) => {
-                  let data = "";
-                  if (
-                    ["ID", "NAME", "EMAIL", "MOBILE"].includes(
-                      cell.column.Header
-                    )
-                  ) {
-                    data = (
-                      <Text color={textColor} fontSize="md" fontWeight="700">
-                        {cell.value?cell.value: "-"}
-                      </Text>
-                    );
-                  } else if (cell.column.Header === "ACTION") {
-                    data = (
-                      <Flex align="center">
-                        <IconButton
-                          colorScheme={"blue"}
-                          // size="md"
-                          me={4}
-                          padding={0}
-                          fontWeight="700"
-                          onClick={() => handleClick(cell.row.original)}
-                          icon={<MdOutlineRemoveRedEye />}
-                        >
-                          {/* View {" >>"} */}
-                          
-                        </IconButton>
-
-                        <IconButton
-                          colorScheme={"red"}
-                          // size="md"
-                          padding={0}
-                          fontWeight="700"
-                          onClick={() => handleDelClick(cell.row.original)}
-                          icon={<MdDeleteOutline  />}
-                        >
-                          {/* View {" >>"} */}
-                          
-                        </IconButton>
-                      </Flex>
-                    );
-                  }
-                  return (
-                    <Td
-                      {...cell.getCellProps()}
-                      key={index}
-                      fontSize={{ sm: "14px" }}
-                      maxH="30px !important"
-                      py="8px"
-                      minW={{ sm: "150px", md: "200px", lg: "auto" }}
-                      borderColor="transparent"
+                    <Flex
+                      justify="space-between"
+                      align="center"
+                      fontSize={{ sm: "10px", lg: "12px" }}
+                      color="gray.400"
                     >
-                      {data}
-                    </Td>
-                  );
-                })}
+                      {column.render("Header")}
+                    </Flex>
+                  </Th>
+                ))}
               </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
-      )
-      }
-      
+            ))}
+          </Thead>
+          <Tbody {...getTableBodyProps()}>
+            {page.map((row, index) => {
+              prepareRow(row);
+              return (
+                <Tr {...row.getRowProps()} key={index}>
+                  {row.cells.map((cell, index) => {
+                    let content = cell.value; // Default rendering content
+                    if (
+                      ["ID", "NAME", "EMAIL", "MOBILE"].includes(
+                        cell.column.Header
+                      )
+                    ) {
+                      content = (
+                        <HighlightedText
+                          text={cell.value ? cell.value : "-"}
+                          highlight={filterInput}
+                        />
+                      );
+                    } else if (cell.column.Header === "ACTION") {
+                      content = (
+                        <Flex align="center">
+                          <IconButton
+                            colorScheme={"blue"}
+                            // size="md"
+                            me={4}
+                            padding={0}
+                            fontWeight="700"
+                            onClick={() => handleClick(cell.row.original)}
+                            icon={<MdOutlineRemoveRedEye />}
+                          >
+                            {/* View {" >>"} */}
+                          </IconButton>
 
-
+                          <IconButton
+                            colorScheme={"red"}
+                            // size="md"
+                            padding={0}
+                            fontWeight="700"
+                            onClick={() => handleDelClick(cell.row.original)}
+                            icon={<MdDeleteOutline />}
+                          >
+                            {/* View {" >>"} */}
+                          </IconButton>
+                        </Flex>
+                      );
+                    }
+                    return (
+                      <Td
+                        {...cell.getCellProps()}
+                        key={index}
+                        fontSize={{ sm: "14px" }}
+                        maxH="30px !important"
+                        py="8px"
+                        minW={{ sm: "150px", md: "200px", lg: "auto" }}
+                        borderColor="transparent"
+                      >
+                        {content}
+                      </Td>
+                    );
+                  })}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      )}
 
       {/* Pagination */}
       <Flex justifyContent="space-between" m={4} alignItems="center">

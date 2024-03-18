@@ -127,6 +127,7 @@ export default function ColumnsTable(props) {
                   pe="10px"
                   key={index}
                   borderColor={borderColor}
+                  
                 >
                   <Flex
                     justify="space-between"

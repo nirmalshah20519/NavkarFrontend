@@ -5,6 +5,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ArrowRightIcon,
+  SearchIcon,
 } from "@chakra-ui/icons";
 import {
   Box,
@@ -37,6 +38,7 @@ import {
   NumberDecrementStepper,
   Tooltip,
   IconButton,
+  Icon,
 } from "@chakra-ui/react";
 import { MdDelete, MdEdit, MdSave, MdCancel, MdAdd } from "react-icons/md";
 import { useTable, useFilters, usePagination } from "react-table";
@@ -91,6 +93,7 @@ export default function UserReports() {
   };
 
   const handleEditProduct = (productId) => {
+    // console.log(productId);
     setEditableProductId(productId);
     const productToEdit = products.find((product) => product.id === productId);
     setEditedProductName(productToEdit.name);
@@ -145,8 +148,39 @@ export default function UserReports() {
 
   const redColor = useColorModeValue("red.500", "white");
   const greenColor = useColorModeValue("green.500", "white");
+  const textColor = useColorModeValue("secondaryGray.900", "white");
 
-  const data = React.useMemo(() => products, [products]);
+  // Use a memoized version of the filtered data based on the search input
+  const filteredData = React.useMemo(() => {
+    if (!filterInput) return products;
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(filterInput.toLowerCase())
+    );
+  }, [products, filterInput]);
+
+  // Then, use this filteredData for the data variable
+  const data = React.useMemo(() => filteredData, [filteredData]);
+
+  const HighlightedText = ({ text = "", highlight = "" }) => {
+    if (!highlight.trim()) {
+      return <span>{text}</span>;
+    }
+    const regex = new RegExp(`(${highlight})`, "gi");
+    const parts = text.split(regex);
+    return (
+      <span>
+        {parts.filter(String).map((part, index) =>
+          regex.test(part) ? (
+            <mark key={index} style={{ backgroundColor: "#FFE633" }}>
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
 
   const columns = React.useMemo(
     () => [
@@ -160,59 +194,69 @@ export default function UserReports() {
             placeholder="Search"
           />
         ),
-        Cell: ({ row }) => {
-          return (
-            <>
-              {row.original.id === editableProductId ? (
-                <Input
-                  value={editedProductName}
-                  onChange={(e) => setEditedProductName(e.target.value)}
-                />
-              ) : (
-                row.original.name
-              )}
-            </>
-          );
+        Cell: ({ row, value }) => {
+          const isEditable = row.original.id === editableProductId;
+
+          // Render Input component if in edit mode
+          if (isEditable) {
+            return (
+              <Input
+                value={editedProductName}
+                onChange={(e) => setEditedProductName(e.target.value)}
+                background={"white"}
+                border="1px solid gray !important"
+              />
+            );
+          }
+
+          // Render HighlightedText component if filter input exists
+          if (filterInput) {
+            return <HighlightedText text={value} highlight={filterInput} />;
+          }
+
+          // Otherwise, just return the original value
+          return value;
         },
       },
-      {
-        Header: "Action",
-        accessor: "id",
-        Cell: ({ row }) => {
-          return (
-            <Flex justifyContent={"end"}>
-              {row.original.id === editableProductId ? (
-                <>
-                  <Button colorScheme="blue" mr={2} onClick={handleSaveProduct}>
-                    <MdSave />
-                  </Button>
-                  <Button colorScheme="red" onClick={handleCancelEdit}>
-                    <MdCancel />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    colorScheme="red"
-                    mr={2}
-                    onClick={() => handleDeleteProduct(row.original.id)}
-                  >
-                    <MdDelete />
-                  </Button>
-                  <Button
-                    colorScheme="blue"
-                    onClick={() => handleEditProduct(row.original.id)}
-                  >
-                    <MdEdit />
-                  </Button>
-                </>
-              )}
-            </Flex>
-          );
-        },
-      },
+
+      // {
+      //   Header: "Action",
+      //   accessor: "id",
+      //   Cell: ({ row }) => {
+      //     return (
+      //       <Flex justifyContent={"end"}>
+      //         {row.original.id === editableProductId ? (
+      //           <>
+      //             <Button colorScheme="blue" mr={2} onClick={handleSaveProduct}>
+      //               <MdSave />
+      //             </Button>
+      //             <Button colorScheme="red" onClick={handleCancelEdit}>
+      //               <MdCancel />
+      //             </Button>
+      //           </>
+      //         ) : (
+      //           <>
+      //             <Button
+      //               colorScheme="red"
+      //               mr={2}
+      //               onClick={() => handleDeleteProduct(row.original.id)}
+      //             >
+      //               <MdDelete />
+      //             </Button>
+      //             <Button
+      //               colorScheme="blue"
+      //               onClick={() => handleEditProduct(row.original.id)}
+      //             >
+      //               <MdEdit />
+      //             </Button>
+      //           </>
+      //         )}
+      //       </Flex>
+      //     );
+      //   },
+      // },
     ],
-    [editableProductId, editedProductName]
+    [editableProductId, editedProductName, filterInput]
   );
 
   const {
@@ -227,11 +271,10 @@ export default function UserReports() {
     canPreviousPage,
     canNextPage,
     pageOptions,
-    state: { pageIndex, pageSize, filters }, // Destructure pageSize from state
+    state: { pageIndex, pageSize }, // Destructure pageSize from state
     // Destructure setPage to update the page size
     gotoPage,
     setPageSize,
-    setFilter,
   } = useTable(
     { columns, data, initialState: { pageSize: 5 } }, // Set initial page size to 5
     useFilters,
@@ -244,17 +287,14 @@ export default function UserReports() {
     setPageSize(size); // Set the new page size
   };
 
-  useEffect(() => {
-    setFilter("name", filterInput);
-  }, [filterInput]);
-
-  const globalFilter = (rows, searchText) => {
-    return rows.filter((row) => {
-      return Object.values(row.original).some((columnValue) =>
-        columnValue.toString().toLowerCase().includes(searchText.toLowerCase())
-      );
-    });
-  };
+  // const globalFilter = (rows, searchText) => {
+  //   if (!searchText) return rows; // If search text is empty, return all rows
+  //   return rows.filter((row) => {
+  //     return Object.values(row.original || {}).some((columnValue) =>
+  //       columnValue.toString().toLowerCase().includes(searchText.toLowerCase())
+  //     );
+  //   });
+  // };
 
   return (
     <>
@@ -268,30 +308,73 @@ export default function UserReports() {
         </Box>
       ) : (
         <Box>
-          <Text fontSize={"3rem"} fontWeight="bold" mb={4}>
-            Dashboard
-          </Text>
+          <Flex
+            px="25px"
+            py={"16px"}
+            borderRadius={"16px"}
+            justify="space-between"
+            mb="20px"
+            align="center"
+            bg={"white"}
+          >
+            <Text fontSize={"2rem"} fontWeight="bold" mb={4}>
+              Products
+            </Text>
+            <Button
+              leftIcon={<MdAdd />}
+              colorScheme="blue"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Add Product
+            </Button>
+          </Flex>
+
           {isLoading ? (
             <Spinner />
           ) : (
             <>
-              <Box mb={4}>
-                <Button
-                  leftIcon={<MdAdd />}
-                  colorScheme="blue"
-                  onClick={() => setIsModalOpen(true)}
+              {/* <Box mb={4}>
+                
+              </Box> */}
+              <Box mb={4} background={"white"}>
+                <Flex
+                  pl="8px"
+                  mb="20px"
+                  justify="flex-start"
+                  align="center"
+                  border={`solid ${textColor} 2p`}
+                  // background={'whatsapp.400'}
                 >
-                  Add Product
-                </Button>
+                  <Box me="10px">
+                    <Icon as={SearchIcon} color="gray.400" />
+                  </Box>
+                  <Input
+                    value={filterInput}
+                    onChange={(e) => setFilterInput(e.target.value)}
+                    placeholder="Search Product"
+                  />
+                </Flex>
               </Box>
-              <Table {...getTableProps()} variant="striped" colorScheme="gray">
-                <Thead>
+              <Table
+                {...getTableProps()}
+                variant="striped"
+                colorScheme="gray"
+                size="md"
+              >
+                <Thead bg="gray.100">
                   {headerGroups.map((headerGroup) => (
                     <Tr {...headerGroup.getHeaderGroupProps()}>
                       {headerGroup.headers.map((column) => (
-                        <Th {...column.getHeaderProps()}>
-                          {column.render("Header") === "ACTION" ? (
-                            <Text style={{ textAlign: "right" }}>
+                        <Th
+                          {...column.getHeaderProps()}
+                          background={"gray.600"}
+                          color={"white"}
+                          fontSize={"1rem"}
+                        >
+                          {/* {console.log(column.render("Header"))} */}
+                          {column.render("Header").toUpperCase() ===
+                          "ACTION" ? (
+                            <Text textAlign="right" me={"16px"}>
                               {column.render("Header")}
                             </Text>
                           ) : (
@@ -303,17 +386,15 @@ export default function UserReports() {
                   ))}
                 </Thead>
                 <Tbody {...getTableBodyProps()}>
-                  {page.map((row, i) => {
+                  {page.map((row, index) => {
                     prepareRow(row);
                     return (
-                      <Tr {...row.getRowProps()}>
-                        {row.cells.map((cell) => {
-                          return (
-                            <Td {...cell.getCellProps()}>
-                              {cell.render("Cell")}
-                            </Td>
-                          );
-                        })}
+                      <Tr {...row.getRowProps()} key={index}>
+                        {row.cells.map((cell, index) => (
+                          <Td {...cell.getCellProps()} key={index}>
+                            {cell.render("Cell")}
+                          </Td>
+                        ))}
                       </Tr>
                     );
                   })}
